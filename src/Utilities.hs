@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module Utilities where
 
 import Graphics.Gloss.Interface.Pure.Game
@@ -44,30 +45,28 @@ checkBorderHit hit ballPosition ballDirection
   | hit == LeftHit || hit == RightHit
     || ballLeftBorder <= -windowHorizontalRadius || ballRightBorder >= windowHorizontalRadius
       = (-(fst ballDirection), snd ballDirection)
-  | hit == TopHit || hit == PlatformHit ||
-    ballTopBorder >= windowVerticalRadius || ballBottomBorder <= -windowVerticalRadius
+  | hit == TopHit || hit == BottomHit
+    || ballTopBorder >= windowVerticalRadius || ballBottomBorder <= -windowVerticalRadius
       = (fst ballDirection, -(snd ballDirection))
   | otherwise = ballDirection
   where
-    (ballLeftBorder, ballRightBorder, ballTopBorder, ballBottomBorder) = getBallBoundaries ballPosition ballRadius
+    ballLeftBorder = fst ballPosition - ballRadius
+    ballRightBorder = fst ballPosition + ballRadius
+    ballTopBorder = snd ballPosition + ballRadius
+    ballBottomBorder = snd ballPosition - ballRadius
     windowHorizontalRadius = windowWidthFloat / 2
     windowVerticalRadius = windowHeightFloat / 2
 
 checkBrickHit :: Point -> Brick -> Hit
-checkBrickHit (x, y) brick
-  | topHit = TopHit
-  | bottomHit = BottomHit
-  | leftHit = LeftHit
-  | rightHit = RightHit
-  | otherwise = NoHit
-  where
-    (leftBorder, rightBorder, topBorder, bottomBorder) = getBrickBoundaries brick
-    (ballTop, ballBottom, ballLeft, ballRight) = getBallBoundaries (x, y) ballRadius
-
-    topHit = (ballBottom <= topBorder) && (ballTop >= topBorder) && (ballLeft <= rightBorder) && (ballRight >= leftBorder)
-    bottomHit = (ballTop >= bottomBorder) && (ballBottom <= bottomBorder) && (ballLeft <= rightBorder) && (ballRight >= leftBorder)
-    leftHit = (ballRight >= leftBorder) && (ballLeft <= leftBorder) && (ballTop >= bottomBorder) && (ballBottom <= topBorder)
-    rightHit = (ballLeft <= rightBorder) && (ballRight >= rightBorder) && (ballTop >= bottomBorder) && (ballBottom <= topBorder)
-
-
-
+checkBrickHit (x, y) Brick{..} | leftBorder <= x && x <= rightBorder &&
+                            ballTop > topBorder && ballBottom < topBorder = TopHit
+                          | leftBorder <= x && x <= rightBorder &&
+                            ballTop > bottomBorder && ballBottom < bottomBorder = BottomHit
+                          | bottomBorder <= y && y <= topBorder &&
+                            ballLeft < leftBorder && ballRight > leftBorder = LeftHit
+                          | bottomBorder <= y && y <= topBorder &&
+                            ballLeft < rightBorder && ballRight > rightBorder = RightHit
+                          | otherwise = NoHit
+        where
+          (leftBorder, rightBorder, topBorder, bottomBorder) = getBrickBoundaries Brick{..}
+          (ballLeft, ballRight, ballTop, ballBottom) = getBallBoundaries (x, y) ballRadius
