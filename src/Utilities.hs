@@ -87,3 +87,60 @@ checkAndMovePlatformRight state@GameState{..}
 
 checkAndMovePlatform :: GameState -> Point
 checkAndMovePlatform state = platformPos $ checkAndMovePlatformRight $ checkAndMovePlatformLeft state
+
+checkFall :: Point -> GameState -> Bool
+checkFall (x, y) state@GameState{..}
+  | y - ballRadius < platformY - platformHeight - ballRadius * 2.5 = True
+  | otherwise = False
+  where
+    platformY = snd platformPos - platformHeight / 2
+
+combineHits :: Hit -> Hit -> Hit
+combineHits NoHit hit = hit
+combineHits hit NoHit = hit
+combineHits _ _ = NoHit
+
+detectHit :: Point -> [BricksGridRow] -> BricksGrid
+detectHit _ [] = BricksGrid [] NoHit
+detectHit currPos (row:xs) = case checkHitRow currPos row of
+  CheckHitResult resRow resHit ->
+    let BricksGrid bricks lastHit = detectHit currPos xs
+    in BricksGrid (resRow : bricks) (combineHits resHit lastHit)
+getRemainingBricksCountRow :: BricksGridRow -> Int
+getRemainingBricksCountRow [] = 0
+getRemainingBricksCountRow (NoBrick : xs) = getRemainingBricksCountRow xs
+getRemainingBricksCountRow (_ : xs) = 1 + getRemainingBricksCountRow xs
+
+getRemainingBricksCount :: BricksGrid -> Int
+getRemainingBricksCount (BricksGrid [] _) = 0
+getRemainingBricksCount (BricksGrid (row : xs) hit) = getRemainingBricksCountRow row + getRemainingBricksCount (BricksGrid xs hit)
+
+checkPlatformHit :: Point -> GameState -> PlatformHitResult
+checkPlatformHit (x, y) state@GameState{..}
+  | platformX - halfPlatformLength <= x && x <= platformX + halfPlatformLength &&
+    platformY - halfPlatformHeight <= ballBottom && ballBottom <= platformY + halfPlatformHeight
+      = PlatformHitResult True (ballNewXDirection / fromIntegral fps, ballNewYDirection / fromIntegral fps)
+  | otherwise = PlatformHitResult False (0, 0)
+  where
+    ballBottom = y - ballRadius
+    platformX = fst platformPos
+    platformY = snd platformPos
+    halfPlatformLength = platformLength / 2
+    halfPlatformHeight = platformHeight / 2
+    ballXFromPlatformPos = x - platformX
+    ballNewXDirection = ballXFromPlatformPos / halfPlatformLength * snd platformHitAngleRange
+    ballNewYDirection = sqrt (ballSpeed * ballSpeed - ballNewXDirection * ballNewXDirection)
+
+checkHitRow :: Point -> BricksGridRow -> CheckHitResult
+checkHitRow _ [] = CheckHitResult [] NoHit
+checkHitRow currPos (brick@Brick{..} : xs) =
+  case resHit of
+    NoHit -> CheckHitResult (brick : resRow) resHitRow
+    _     -> CheckHitResult (newBrick : xs) resHit
+  where
+    resHit = checkBrickHit currPos brick
+    newBrick = if livesLeft == 1 then NoBrick else Brick position size (livesLeft - 1)
+    CheckHitResult resRow resHitRow = checkHitRow currPos xs
+checkHitRow currPos (NoBrick : xs) = CheckHitResult (NoBrick : resRow) resHitRow
+  where
+    CheckHitResult resRow resHitRow = checkHitRow currPos xs
