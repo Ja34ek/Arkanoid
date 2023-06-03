@@ -70,3 +70,20 @@ checkBrickHit (x, y) Brick{..} | leftBorder <= x && x <= rightBorder &&
         where
           (leftBorder, rightBorder, topBorder, bottomBorder) = getBrickBoundaries Brick{..}
           (ballLeft, ballRight, ballTop, ballBottom) = getBallBoundaries (x, y) ballRadius
+
+checkAndMovePlatformLeft :: GameState -> GameState
+checkAndMovePlatformLeft state@GameState{..}
+  | LeftPressed `elem` keysPressed = state{ platformPos = (newX, initPlatformPositionY) }
+  | otherwise = state
+  where
+    newX = max ((-windowWidthFloat + platformLength) / 2) (fst platformPos - platformSpeed / fromIntegral fps)
+
+checkAndMovePlatformRight :: GameState -> GameState
+checkAndMovePlatformRight state@GameState{..}
+  | RightPressed `elem` keysPressed = state{ platformPos = (newX, initPlatformPositionY) }
+  | otherwise = state
+  where
+    newX = min ((windowWidthFloat - platformLength) / 2) (fst platformPos + platformSpeed / fromIntegral fps)
+
+checkAndMovePlatform :: GameState -> Point
+checkAndMovePlatform state = platformPos $ checkAndMovePlatformRight $ checkAndMovePlatformLeft state
