@@ -1,4 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
 module Lib where
 
 import Graphics.Gloss.Interface.Pure.Game
