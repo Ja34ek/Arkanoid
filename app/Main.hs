@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Lib
+import Run
 
 main :: IO ()
-main = undefined
+main = run
