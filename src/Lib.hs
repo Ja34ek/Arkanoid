@@ -14,10 +14,10 @@ data BricksGrid = BricksGrid {bricks :: [BricksGridRow], lastHit :: Hit}
 data GameState = GameState {
   isSaved :: Bool,
   isPlaying :: Bool,
-  view :: View,
-  ballPos :: Point,
+  currentView :: View,
+  ballPosition :: Point,
   ballDirection :: Vector,
-  platformPos :: Point,
+  platformPosition :: Point,
   level :: Int,
   grid :: BricksGrid,
   bricksLeft :: Int,
