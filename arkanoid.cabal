@@ -37,6 +37,7 @@ library
   build-depends:
       base >=4.7 && <5
     , gloss
+    , random
   default-language: Haskell2010
 
 executable arkanoid-exe
@@ -50,6 +51,7 @@ executable arkanoid-exe
       arkanoid
     , base >=4.7 && <5
     , gloss
+    , random
   default-language: Haskell2010
 
 test-suite arkanoid-test
@@ -64,4 +66,5 @@ test-suite arkanoid-test
       arkanoid
     , base >=4.7 && <5
     , gloss
+    , random
   default-language: Haskell2010
