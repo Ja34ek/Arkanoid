@@ -13,7 +13,7 @@ initBallPositionY :: Float
 initBallPositionY = -150
 
 speedCoef :: Float
-speedCoef = 65
+speedCoef = 25 + 25 * fromIntegral difficultyLevel
 
 ballSpeed ::  Float
 ballSpeed = 4.5 * speedCoef
@@ -40,13 +40,7 @@ platformHitAngleRange :: (Float, Float)
 platformHitAngleRange = (-4.3 * speedCoef, 4.3 * speedCoef)
 
 randRange :: (Float, Float)
-randRange = (-2 * speedCoef, 2 * speedCoef)
-
-windowWidthScore :: Float
-windowWidthScore = 100
-
-windowWidth :: Int
-windowWidth = 400
+randRange = (100, 100)
 
 wallsWidth :: Float
 wallsWidth = 5
@@ -55,4 +49,4 @@ fps:: Int
 fps = 60
 
 difficultyLevel:: Int
-difficultyLevel = 3
+difficultyLevel = 2

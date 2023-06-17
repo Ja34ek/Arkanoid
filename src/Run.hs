@@ -12,20 +12,20 @@ import System.Exit
 run :: IO ()
 run = do
   gen <- getStdGen
-  initial <- initState (fst (randomR randRange gen)) StartScreen
+  initial <- initState difficultyLevel (fst (randomR randRange gen)) StartScreen
   playIO window black fps initial draw updateGameStateOnEvent  updateGameState
 
 window :: Display
 window = FullScreen
 
-initState :: Float -> View -> IO GameState
-initState rnd v = pure $ GameState False False v (0, initialBallY) (rnd / fromIntegral fps, ballVerticalDirection / fromIntegral fps) (0, initialPlatformY) 0 (generateLevel difficultyLevel) 3 NotFinished [NonePressed]
+initState :: Int -> Float -> View -> IO GameState
+initState level randomNumber view = pure $ GameState False view (0, initialBallY) (randomNumber / fromIntegral fps, ballVerticalDirection / fromIntegral fps) (0, initialPlatformY) level (generateLevel level) 3 NotFinished [NonePressed]
   where
     initialBallY :: Float
     initialBallY = initBallPositionY
 
     ballVerticalDirection :: Float
-    ballVerticalDirection = sqrt ((ballSpeed * ballSpeed) - (rnd * rnd))
+    ballVerticalDirection = sqrt ((ballSpeed * ballSpeed) - (randomNumber * randomNumber))
 
     initialPlatformY :: Float
     initialPlatformY = initPlatformPositionY
@@ -76,16 +76,18 @@ generateLevel level = BricksGrid
     ]
   ] NoHit
 
+updateGameLevel:: Int -> Int -> Int
+updateGameLevel level increment = level + increment + 1
+
 updateGameState :: Float -> GameState -> IO GameState
 updateGameState s state@GameState {..}
   | currentView == Exit = do
-    exitSuccess
+    _ <- exitSuccess
     return state
   | currentView /= LevelView = return state
-  | result == Win = do
-    return $ GameState True False WinView ballPosition (0, 0) platformPosition level grid 0 Win [NonePressed]
-  | result == Lose = return $ GameState isSaved False LoseView ballPosition (0, 0) platformPosition level grid 0 Lose [NonePressed]
-  | otherwise = return $ GameState isSaved isPlaying currentView newBallPosition newBallDirection newPlatformPositions level newGrid bricksLeftUpdated newResult keysPressed
+  | result == Win = return $ GameState False WinView ballPosition (0, 0) platformPosition level grid 0 Win [NonePressed]
+  | result == Lose = return $ GameState False LoseView ballPosition (0, 0) platformPosition level grid 0 Lose [NonePressed]
+  | otherwise = return $ GameState isPlaying currentView newBallPosition newBallDirection newPlatformPositions level newGrid bricksLeftUpdated newResult keysPressed
   where
     newBallPosition = moveBall ballPosition ballDirection
     newGrid = detectHit newBallPosition (bricks grid)
@@ -105,6 +107,9 @@ updateGameStateOnEvent  :: Event -> GameState -> IO GameState
 updateGameStateOnEvent  (EventKey (SpecialKey key) keyState _ _) state@GameState {..}
   | (key == KeySpace && currentView == Menu) = return (state { currentView = LevelView })
   | (key == KeySpace && currentView == Pause) = return (state { currentView = LevelView })
+  | (key == KeySpace && currentView == WinView) = do
+    gen <- getStdGen
+    initState (updateGameLevel level 1) (fst (randomR randRange gen)) LevelView
   | (key == KeyEnter && currentView == StartScreen) = return (state { currentView = Menu })
   | key == KeyLeft =
     return
@@ -127,12 +132,13 @@ updateGameStateOnEvent  (EventKey (SpecialKey key) keyState _ _) state@GameState
   | key == KeyEsc =
     return (state { currentView = Exit })
   | otherwise = return state
-updateGameStateOnEvent  (EventKey (Char c) Down _ _) state@GameState {}
+  where
+updateGameStateOnEvent  (EventKey (Char c) Down _ _) state@GameState {..}
   | c == 'm' = return state { currentView = Menu }
   | c == 'p' = return state { currentView = Pause }
   | c == 'r' = do
     gen <- getStdGen
-    initState (fst (randomR randRange gen)) LevelView
+    initState (difficultyLevel) (fst (randomR randRange gen)) LevelView
   | otherwise = return state
 updateGameStateOnEvent  _ state = return state
 
@@ -141,7 +147,7 @@ draw GameState {..} = return . Pictures $
   case currentView of
     StartScreen -> [initWindow1, initWindow2]
     Menu -> [menuInstruction, menuMove, menuRestart, menuPause, menuStart, menuExit]
-    WinView -> [victory]
+    WinView -> [victory, nextLevel, nextLevel2]
     LoseView -> [failure, ball, platform, wallsColor]
     Pause -> [paused, ball, bricks, platform, wallsColor]
     LevelView -> [ball, bricks, platform, wallsColor]
@@ -159,7 +165,9 @@ draw GameState {..} = return . Pictures $
     initWindow1 = Scale 0.33 0.35 $ Translate (-windowWidthFloat * 2) 100 $ Color white $ Text "Witaj w grze Arkanoid!"
     initWindow2 = Scale 0.33 0.35 $ Translate (-windowWidthFloat * 2) (-100) $ Color white $ Text "Nacisnij 'Enter', aby kontynuowac"
 
-    victory = Scale 1 1 $ Translate (-windowWidthFloat * 0.9) 0 $ Color yellow $ Text "Zwyciestwo!"
+    victory = Scale 0.75 0.75 $ Translate (-windowWidthFloat * 0.9) 150 $ Color red $ Text "Zwyciestwo!"
+    nextLevel = Scale 0.50 0.505 $ Translate (-windowWidthFloat * 1) (-65) $ Color yellow $ Text "Nacisnij Spacje,"
+    nextLevel2 = Scale 0.50 0.50 $ Translate (-windowWidthFloat * 3) (-200) $ Color yellow $ Text "aby przejsc do nastepnego poziomu!"
     failure = Translate (- windowWidthFloat / 3) 0 $ Color yellow $ Text "Porazka!"
 
     ball = uncurry Translate ballPosition $ Color white (circleSolid ballRadius)
@@ -180,16 +188,18 @@ draw GameState {..} = return . Pictures $
     drawGrid (BricksGrid rows _) = Pictures $ map drawRow rows
 
     drawRow :: [Brick] -> Picture
-    drawRow bricks = Pictures $ map drawBrick bricks
+    drawRow bricksInRow = Pictures $ map drawBrick bricksInRow
 
     drawBrick :: Brick -> Picture
     drawBrick NoBrick = Blank
-    drawBrick (Brick (x, y) (w, h) level) =
-      let brickColor = case level of
+    drawBrick (Brick (x, y) (w, h) levels) =
+      let brickColor = case levels of
             1 -> red
             2 -> orange
             3 -> yellow
             4 -> green
             5 -> blue
+            6 -> violet
+            7 -> aquamarine
             _ -> light blue
       in Translate x y (Color brickColor (rectangleSolid w h))
