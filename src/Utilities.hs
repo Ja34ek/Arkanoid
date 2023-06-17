@@ -8,10 +8,10 @@ import Data
 moveBall :: Point -> Vector -> Point
 moveBall (ballX, ballY) (vectorX, vectorY) = (newX, newY)
   where
-    leftBorder = -windowWidthFloat / 2
-    rightBorder = windowWidthFloat / 2
-    topBorder = windowHeightFloat / 2
-    bottomBorder = -windowHeightFloat / 2
+    leftBorder = -windowWidth / 2
+    rightBorder = windowWidth / 2
+    topBorder = windowHeight / 2
+    bottomBorder = -windowHeight / 2
 
     newX
       | vectorX < 0 && leftBorder >= ballX + vectorX - ballRadius = leftBorder + ballRadius
@@ -24,14 +24,15 @@ moveBall (ballX, ballY) (vectorX, vectorY) = (newX, newY)
       | otherwise = ballY + vectorY
 
 getBallBoundaries :: Point -> Float -> (Float, Float, Float, Float)
-getBallBoundaries (x, y) ballRadius =
-    let leftBoundary = x - ballRadius
-        rightBoundary = x + ballRadius
-        topBoundary = y + ballRadius
-        bottomBoundary = y - ballRadius
+getBallBoundaries (x, y) radius =
+    let leftBoundary = x - radius
+        rightBoundary = x + radius
+        topBoundary = y + radius
+        bottomBoundary = y - radius
     in (leftBoundary, rightBoundary, topBoundary, bottomBoundary)
 
 getBrickBoundaries :: Brick -> (Float, Float, Float, Float)
+getBrickBoundaries NoBrick = (0, 0, 0, 0)
 getBrickBoundaries (Brick {position = (posX, posY), size = (sizeX, sizeY)}) =
   let leftBorder = posX - (sizeX / 2)
       rightBorder = posX + (sizeX / 2)
@@ -51,11 +52,12 @@ checkBorderHit hit ballPosition ballDirection
     ballRightBorder = fst ballPosition + ballRadius
     ballTopBorder = snd ballPosition + ballRadius
     ballBottomBorder = snd ballPosition - ballRadius
-    windowHorizontalRadius = windowWidthFloat / 2
-    windowVerticalRadius = windowHeightFloat / 2
+    windowHorizontalRadius = windowWidth / 2
+    windowVerticalRadius = windowHeight / 2
 
 checkBrickHit :: Point -> Brick -> Hit
-checkBrickHit (x, y) brick@Brick{..}
+checkBrickHit (_, _) NoBrick = NoHit
+checkBrickHit (x, y) brick@Brick{}
   | leftBorder <= x && x <= rightBorder &&
     ballTop > topBorder && ballBottom < topBorder = TopHit
   | leftBorder <= x && x <= rightBorder &&
@@ -74,20 +76,20 @@ checkAndMovePlatformLeft state@GameState{..}
   | LeftPressed `elem` keysPressed = state{ platformPosition = (newX, initPlatformPositionY) }
   | otherwise = state
   where
-    newX = max ((-windowWidthFloat + platformLength) / 2) (fst platformPosition - platformSpeed / fromIntegral fps)
+    newX = max ((-windowWidth + platformLength) / 2) (fst platformPosition - platformSpeed / fromIntegral fps)
 
 checkAndMovePlatformRight :: GameState -> GameState
 checkAndMovePlatformRight state@GameState{..}
   | RightPressed `elem` keysPressed = state{ platformPosition = (newX, initPlatformPositionY) }
   | otherwise = state
   where
-    newX = min ((windowWidthFloat - platformLength) / 2) (fst platformPosition + platformSpeed / fromIntegral fps)
+    newX = min ((windowWidth - platformLength) / 2) (fst platformPosition + platformSpeed / fromIntegral fps)
 
 checkAndMovePlatform :: GameState -> Point
 checkAndMovePlatform state = platformPosition $ checkAndMovePlatformRight $ checkAndMovePlatformLeft state
 
 checkFall :: Point -> GameState -> Bool
-checkFall (x, y) state@GameState{..}
+checkFall (_, y) GameState{..}
   | y - ballRadius < platformY - platformHeight - ballRadius * 2.5 = True
   | otherwise = False
   where
@@ -115,7 +117,7 @@ getRemainingBricksCount (BricksGrid [] _) = 0
 getRemainingBricksCount (BricksGrid (row : xs) hit) = getRemainingBricksCountRow row + getRemainingBricksCount (BricksGrid xs hit)
 
 checkPlatformHit :: Point -> GameState -> PlatformHitResult
-checkPlatformHit (x, y) state@GameState{..}
+checkPlatformHit (x, y) GameState{..}
   | platformX - halfPlatformLength <= x && x <= platformX + halfPlatformLength &&
     platformY - halfPlatformHeight <= ballBottom && ballBottom <= platformY + halfPlatformHeight
       = PlatformHitResult True (ballNewXDirection / fromIntegral fps, ballNewYDirection / fromIntegral fps)

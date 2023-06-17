@@ -1,10 +1,10 @@
 module Data where
 
-windowWidthFloat :: Float
-windowWidthFloat = 400
+windowWidth :: Float
+windowWidth = 400
 
-windowHeightFloat :: Float
-windowHeightFloat = 600
+windowHeight :: Float
+windowHeight = 600
 
 ballRadius :: Float
 ballRadius = 6
@@ -12,11 +12,8 @@ ballRadius = 6
 initBallPositionY :: Float
 initBallPositionY = -150
 
-speedCoef :: Float
-speedCoef = 25 + 25 * fromIntegral difficultyLevel
-
-ballSpeed ::  Float
-ballSpeed = 4.5 * speedCoef
+initialBallSpeed ::  Float
+initialBallSpeed = 300
 
 initPlatformPositionY :: Float
 initPlatformPositionY = -250
@@ -37,7 +34,7 @@ platformSpeed :: Float
 platformSpeed = 200
 
 platformHitAngleRange :: (Float, Float)
-platformHitAngleRange = (-4.3 * speedCoef, 4.3 * speedCoef)
+platformHitAngleRange = (-300, 300)
 
 randRange :: (Float, Float)
 randRange = (100, 100)
@@ -47,6 +44,3 @@ wallsWidth = 5
 
 fps:: Int
 fps = 60
-
-difficultyLevel:: Int
-difficultyLevel = 2
