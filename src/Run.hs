@@ -3,6 +3,7 @@ module Run where
 
 import Graphics.Gloss.Interface.IO.Game
 import Lib
+import FileManagement
 import Data
 import Utilities
 import System.Random
@@ -12,8 +13,9 @@ import System.Exit
 run :: IO ()
 run = do
   gen <- getStdGen
+  createTextFile pathToRecords
   initial <- initState initialBallSpeed 1 0 (fst (randomR randRange gen)) StartScreen
-  playIO window black fps initial draw updateGameStateOnEvent  updateGameState
+  playIO window black fps initial draw updateGameStateOnEvent updateGameState
 
 window :: Display
 window = FullScreen
@@ -89,7 +91,10 @@ updateGameState _ state@GameState {..}
     return state
   | currentView /= LevelView = return state
   | result == Win = return $ GameState False WinView ballPosition (0, 0) ballSpeed platformPosition level score grid 0 Win [NonePressed]
-  | result == Lose = return $ GameState False LoseView ballPosition (0, 0) ballSpeed platformPosition level score grid 0 Lose [NonePressed]
+  | result == Lose = do
+    let tempscore = score
+    updateHighScores pathToRecords tempscore
+    return $ GameState False LoseView ballPosition (0, 0) ballSpeed platformPosition level tempscore grid 0 Lose [NonePressed]
   | otherwise = return $ GameState isPlaying currentView newBallPosition newBallDirection ballSpeed newPlatformPositions level newScore newGrid bricksLeftUpdated newResult keysPressed
   where
     newBallPosition = moveBall ballPosition ballDirection
@@ -173,7 +178,7 @@ draw GameState {..} = return . Pictures $
     nextLevel = Scale 0.50 0.505 $ Translate (-windowWidth * 1) (-65) $ Color yellow $ Text "Nacisnij Spacje,"
     nextLevel2 = Scale 0.50 0.50 $ Translate (-windowWidth * 3) (-200) $ Color yellow $ Text "aby przejsc do nastepnego poziomu!"
     failure = Scale 0.6 0.6 $ Translate (-windowWidth) 100 $ Color red $ Text "Przegrales!"
-    failureScore = Scale 0.6 0.6 $ Translate (-windowWidth * 1.5) (-100) $ Color red $ Text ("Twoj wynik to: " ++ show level)
+    failureScore = Scale 0.6 0.6 $ Translate (-windowWidth * 1.5) (-100) $ Color red $ Text ("Twoj wynik to: " ++ show score)
     levelText = Scale 0.5 0.5 $ Translate (-windowWidth * 3) (windowHeight * 0.9) $ Color yellow $ Text ("Poziom: " ++ show level)
     scoreText = Scale 0.5 0.5 $ Translate (windowWidth * 1.5) (windowHeight * 0.9) $ Color yellow $ Text ("Wynik: " ++ show score)
 

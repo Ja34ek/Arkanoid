@@ -44,3 +44,6 @@ wallsWidth = 5
 
 fps:: Int
 fps = 60
+
+pathToRecords:: String
+pathToRecords = "results\\PB.txt"
