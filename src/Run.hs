@@ -13,7 +13,7 @@ import System.Exit
 run :: IO ()
 run = do
   gen <- getStdGen
-  createTextFile pathToRecords
+  createTextFile pathToSessionRecords
   initial <- initState initialBallSpeed 1 0 (fst (randomR randRange gen)) StartScreen
   playIO window black fps initial draw updateGameStateOnEvent updateGameState
 
@@ -92,9 +92,8 @@ updateGameState _ state@GameState {..}
   | currentView /= LevelView = return state
   | result == Win = return $ GameState False WinView ballPosition (0, 0) ballSpeed platformPosition level score grid 0 Win [NonePressed]
   | result == Lose = do
-    let tempscore = score
-    updateHighScores pathToRecords tempscore
-    return $ GameState False LoseView ballPosition (0, 0) ballSpeed platformPosition level tempscore grid 0 Lose [NonePressed]
+    updateHighScores pathToSessionRecords score
+    return $ GameState False LoseView ballPosition (0, 0) ballSpeed platformPosition level score grid 0 Lose [NonePressed]
   | otherwise = return $ GameState isPlaying currentView newBallPosition newBallDirection ballSpeed newPlatformPositions level newScore newGrid bricksLeftUpdated newResult keysPressed
   where
     newBallPosition = moveBall ballPosition ballDirection
@@ -138,7 +137,8 @@ updateGameStateOnEvent  (EventKey (SpecialKey key) keyState _ _) state@GameState
                else delete RightPressed keysPressed
          }
       )
-  | key == KeyEsc =
+  | key == KeyEsc = do
+    compareAndUpdateLines pathToSessionRecords pathToPersonalRecords
     return (state { currentView = Exit })
   | otherwise = return state
   where

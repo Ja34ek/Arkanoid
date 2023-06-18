@@ -45,5 +45,8 @@ wallsWidth = 5
 fps:: Int
 fps = 60
 
-pathToRecords:: String
-pathToRecords = "results\\PB.txt"
+pathToSessionRecords:: String
+pathToSessionRecords = "results\\SessionRecords.txt"
+
+pathToPersonalRecords:: String
+pathToPersonalRecords = "results\\PersonalRecords.txt"
