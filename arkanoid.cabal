@@ -36,7 +36,9 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      HUnit
+    , QuickCheck
+    , base >=4.7 && <5
     , directory
     , filepath
     , gloss
@@ -52,7 +54,9 @@ executable arkanoid-exe
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      arkanoid
+      HUnit
+    , QuickCheck
+    , arkanoid
     , base >=4.7 && <5
     , directory
     , filepath
@@ -65,12 +69,15 @@ test-suite arkanoid-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      RunTest
       Paths_arkanoid
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      arkanoid
+      HUnit
+    , QuickCheck
+    , arkanoid
     , base >=4.7 && <5
     , directory
     , filepath

@@ -26,6 +26,8 @@ dependencies:
 - directory
 - filepath
 - time
+- HUnit
+- QuickCheck
 
 ghc-options:
 - -Wall

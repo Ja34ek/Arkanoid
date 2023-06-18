@@ -1,2 +1,10 @@
+module Main where
+
+import RunTest
+import Test.HUnit
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = runTestTT tests >> pure ()
+
+tests :: Test
+tests = TestList [testInitState, testUpdateGameLevel, testUpdateBallSpeed]
