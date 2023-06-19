@@ -70,6 +70,7 @@ test-suite arkanoid-test
   main-is: Spec.hs
   other-modules:
       RunTest
+      UtilitiesTest
       Paths_arkanoid
   hs-source-dirs:
       test
