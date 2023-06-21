@@ -54,3 +54,11 @@ testUpdateGameStateLose =
     updatedState <- updateGameState 0.0 initialState
     let expectedState = GameState False LoseView (0, 0) (0, 0) 1.0 (0, 0) 1 0 (generateSingleBrickWithLevel 1) 0 Lose [NonePressed]
     assertEqual "Expected updatedState to be equal to expectedState" updatedState expectedState
+
+runAllTests :: Test
+runAllTests = TestList [testInitState, 
+                testUpdateGameLevel, 
+                testUpdateBallSpeed, 
+                testUpdateGameStateNonLevelView, 
+                testUpdateGameStateWin, 
+                testUpdateGameStateLose]

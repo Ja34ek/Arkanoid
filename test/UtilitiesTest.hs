@@ -137,3 +137,112 @@ testDetectHitWithLeftHitTwoLives = TestCase $ do
       result = detectHit (-5 - ballRadius * 0.9, 0) bricksGrid
   assertEqual "detectHit ( 1 1) bricksGrid should return BricksGrid [bricksGridRow] NoHit" (BricksGrid emptyBricksGrid LeftHit) result
 
+testGetRemainingBricksCountRowEmpty :: Test
+testGetRemainingBricksCountRowEmpty =
+  TestCase (assertEqual "Empty row should have 0 remaining bricks" 0 (getRemainingBricksCountRow []))
+
+testGetRemainingBricksCountRowNoBrick :: Test
+testGetRemainingBricksCountRowNoBrick =
+  TestCase (assertEqual "Row with NoBrick should have 0 remaining bricks" 0 (getRemainingBricksCountRow [NoBrick, NoBrick, NoBrick]))
+
+testGetRemainingBricksCountRowWithBricks :: Test
+testGetRemainingBricksCountRowWithBricks =
+  TestCase (assertEqual "Row with bricks should have correct remaining bricks count" 2 (getRemainingBricksCountRow [Brick (0, 0) (10, 10) 1, NoBrick, Brick (20, 0) (10, 10) 2]))
+
+testGetRemainingBricksCountEmptyGrid :: Test
+testGetRemainingBricksCountEmptyGrid =
+  TestCase (assertEqual "Empty grid should have 0 remaining bricks" 0 (getRemainingBricksCount (BricksGrid [] NoHit)))
+
+testGetRemainingBricksCountGridWithRows :: Test
+testGetRemainingBricksCountGridWithRows =
+  TestCase (assertEqual "Grid with rows should have correct remaining bricks count" 4 (getRemainingBricksCount (BricksGrid [[Brick (0, 0) (10, 10) 1, NoBrick, Brick (20, 0) (10, 10) 2], [NoBrick, Brick (0, 10) (10, 10) 3, Brick (20, 10) (10, 10) 4], [NoBrick, NoBrick, NoBrick]] NoHit)))
+
+testCheckPlatformHitOnHit :: Test
+testCheckPlatformHitOnHit =
+  let gameState = GameState
+        { isPlaying = True
+        , currentView = LevelView
+        , ballPosition = (0, platformHeight / 4)
+        , ballDirection = (0, 0)
+        , ballSpeed = 10
+        , platformPosition = (0, 0)
+        , level = 1
+        , score = 0
+        , grid = BricksGrid [[]] NoHit
+        , bricksLeft = 0
+        , result = NotFinished
+        , keysPressed = []
+        }
+      expected = PlatformHitResult True (0, 0.16666667) --TODO
+  in TestCase (assertEqual "Ball hits the platform" expected (checkPlatformHit (0, platformHeight / 3) gameState))
+
+testCheckPlatformHitOnMiss :: Test
+testCheckPlatformHitOnMiss =
+  let gameState = GameState
+        { isPlaying = True
+        , currentView = LevelView
+        , ballPosition = (0, platformHeight * 5)
+        , ballDirection = (0, 0)
+        , ballSpeed = 10
+        , platformPosition = (0, 0)        
+        , level = 1
+        , score = 0
+        , grid = BricksGrid [[]] NoHit
+        , bricksLeft = 0
+        , result = NotFinished
+        , keysPressed = []
+        }
+      expected = PlatformHitResult False (0, 0)
+  in TestCase (assertEqual "Ball misses the platform" expected (checkPlatformHit (ballPosition gameState) gameState))
+
+testEmptyRow :: Test
+testEmptyRow = TestCase $ do
+  let currentPosition = (0, 0)
+      row = []
+      expectedResult = CheckHitResult [] NoHit
+  assertEqual "Empty row should return no hit" expectedResult (checkHitRow currentPosition row)
+
+testRowWithBricksLevelOne :: Test
+testRowWithBricksLevelOne = TestCase $ do
+  let currentPosition = (20, 5 + ballRadius * 0.9)
+      brick1 = Brick { position = (0, 0), size = (10, 10), livesLeft = 1 }
+      brick2 = Brick { position = (20, 0), size = (10, 10), livesLeft = 1 }
+      brick3 = Brick { position = (40, 0), size = (10, 10), livesLeft = 1 }
+      row = [brick1, brick2, brick3, NoBrick]
+      expectedResult = CheckHitResult [brick1, NoBrick, brick3, NoBrick] TopHit
+  assertEqual "Row with bricks should return the expected result" expectedResult (checkHitRow currentPosition row)
+
+testRowWithBricksLevelGreaterThanOne :: Test
+testRowWithBricksLevelGreaterThanOne = TestCase $ do
+  let currentPosition = (20, -5 - ballRadius * 0.9)
+      brick1 = Brick { position = (0, 0), size = (10, 10), livesLeft = 2 }
+      brick2 = Brick { position = (20, 0), size = (10, 10), livesLeft = 2 }
+      row = [brick1, NoBrick, brick2, NoBrick]
+      expectedResult = CheckHitResult [brick1, NoBrick, newBrick2, NoBrick] BottomHit
+      newBrick2 = Brick { position = (20, 0), size = (10, 10), livesLeft = 1 }
+  assertEqual "Row with bricks should return the expected result" expectedResult (checkHitRow currentPosition row)
+
+utilitiesAllTests :: Test
+utilitiesAllTests = TestList [testMoveBallWithoutBorderHit,
+                testMoveBallWithBorderHit,
+                testGetBallBoundaries,
+                testGetBrickBoundaries,
+                testCheckBorderHit,
+                testCheckBrickHit,
+                testCheckFall,
+                testCombineHitsWithNoHit,
+                testCombineHitsWithHit,
+                testCombineHitsWithHits,
+                testDetectHitWithEmptyGrid,
+                testDetectHitWithTopHit,
+                testDetectHitWithLeftHitTwoLives,
+                testGetRemainingBricksCountRowEmpty,
+                testGetRemainingBricksCountRowNoBrick,
+                testGetRemainingBricksCountRowWithBricks,
+                testGetRemainingBricksCountEmptyGrid,
+                testGetRemainingBricksCountGridWithRows,
+                testCheckPlatformHitOnHit,
+                testCheckPlatformHitOnMiss,
+                testEmptyRow,
+                testRowWithBricksLevelOne,
+                testRowWithBricksLevelGreaterThanOne]
