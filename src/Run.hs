@@ -34,49 +34,24 @@ initState ballSpeed level score randomNumber view = pure $ GameState False view 
 
 generateLevel :: Int -> BricksGrid
 generateLevel level = BricksGrid
-  [ [Brick (-150, 60) (brickLength, brickHeight) level,
-     Brick (150, 60) (brickLength, brickHeight) level
+  [[Brick (0, 60) (brickLength, brickHeight) level
     ],
-    [Brick (-150, 80) (brickLength, brickHeight) level,
-     Brick (150, 80) (brickLength, brickHeight) level
+    [Brick (-70, 100) (brickLength, brickHeight) level,
+     Brick (0, 100) (brickLength, brickHeight) (level + 1),
+     Brick (70, 100) (brickLength, brickHeight) level
     ],
-    [Brick (-150, 100) (brickLength, brickHeight) level,
-     Brick (-90, 100) (brickLength, brickHeight) level,
-     Brick (-30, 100) (brickLength, brickHeight) level,
-     Brick (30, 100) (brickLength, brickHeight) level,
-     Brick (90, 100) (brickLength, brickHeight) level,
-     Brick (150, 100) (brickLength, brickHeight) level
+    [Brick (-140, 140) (brickLength, brickHeight) level,
+     Brick (-70, 140) (brickLength, brickHeight) (level + 1),
+     Brick (0, 140) (brickLength, brickHeight) (level + 2),
+     Brick (70, 140) (brickLength, brickHeight) (level + 1),
+     Brick (140, 140) (brickLength, brickHeight) level
     ],
-    [Brick (-150, 120) (brickLength, brickHeight) level,
-     Brick (-90, 120) (brickLength, brickHeight) level,
-     Brick (-30, 120) (brickLength, brickHeight) level,
-     Brick (30, 120) (brickLength, brickHeight) level,
-     Brick (90, 120) (brickLength, brickHeight) level,
-     Brick (150, 120) (brickLength, brickHeight) level
+    [Brick (-70, 180) (brickLength, brickHeight) level,
+     Brick (0, 180) (brickLength, brickHeight) (level + 1),
+     Brick (70, 180) (brickLength, brickHeight) level
     ],
-    [Brick (-150, 150) (brickLength, brickHeight) level,
-     Brick (-90, 150) (brickLength, brickHeight) level,
-     Brick (-30, 150) (brickLength, brickHeight) level,
-     Brick (30, 150) (brickLength, brickHeight) level,
-     Brick (90, 150) (brickLength, brickHeight) level,
-     Brick (150, 150) (brickLength, brickHeight) level
-    ],
-    [Brick (-150, 170) (brickLength, brickHeight) level,
-     Brick (-90, 170) (brickLength, brickHeight) level,
-     Brick (-30, 170) (brickLength, brickHeight) level,
-     Brick (30, 170) (brickLength, brickHeight) level,
-     Brick (90, 170) (brickLength, brickHeight) level,
-     Brick (150, 170) (brickLength, brickHeight) level
-    ],
-    [Brick (-90, 190) (brickLength, brickHeight) level,
-     Brick (-30, 190) (brickLength, brickHeight) level,
-     Brick (30, 190) (brickLength, brickHeight) level,
-     Brick (90, 190) (brickLength, brickHeight) level
-    ],
-    [Brick (-30, 210) (brickLength, brickHeight) level,
-     Brick (30, 210) (brickLength, brickHeight) level
-    ]
-  ] NoHit
+    [Brick (0, 220) (brickLength, brickHeight) level
+    ]] NoHit
 
 updateGameLevel:: Int -> Int -> Int
 updateGameLevel level increment = level + increment
@@ -211,7 +186,11 @@ draw GameState {..} = return . Pictures $
             3 -> yellow
             4 -> green
             5 -> blue
-            6 -> violet
-            7 -> aquamarine
-            _ -> light blue
+            6 -> magenta
+            7 -> violet
+            8 -> rose
+            9 -> azure
+            10 -> aquamarine
+            11 -> chartreuse 
+            _ -> cyan
       in Translate x y (Color brickColor (rectangleSolid w h))

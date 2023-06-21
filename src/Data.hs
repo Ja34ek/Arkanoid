@@ -25,10 +25,10 @@ platformHeight :: Float
 platformHeight = 10
 
 brickHeight :: Float
-brickHeight = 15
+brickHeight = 32
 
 brickLength :: Float
-brickLength = 50
+brickLength = 64
 
 platformSpeed :: Float
 platformSpeed = 200
@@ -43,7 +43,7 @@ wallsWidth :: Float
 wallsWidth = 5
 
 fps:: Int
-fps = 60
+fps = 100
 
 pathToSessionRecords:: String
 pathToSessionRecords = "results\\SessionRecords.txt"
