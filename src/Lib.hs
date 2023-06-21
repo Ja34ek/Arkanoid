@@ -29,9 +29,9 @@ data GameState = GameState {
 data PlatformHitResult = PlatformHitResult {
   hitFlag :: Bool,
   fromPlatformDirection :: Point
-}
+} deriving (Eq, Show)
 
 data CheckHitResult = CheckHitResult {
   row :: BricksGridRow,
   hit :: Hit
-}
+} deriving (Eq, Show)
