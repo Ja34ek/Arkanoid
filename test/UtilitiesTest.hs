@@ -7,7 +7,6 @@ import Data
 import Lib
 import Test.HUnit
 import System.Random
-import Graphics.Gloss.Interface.Pure.Game
 
 testMoveBallWithoutBorderHit :: Test
 testMoveBallWithoutBorderHit = TestCase $ do
@@ -88,13 +87,11 @@ testCheckFall = test
   [ "Ball falls below the platform" ~:
       let ballPosition = (0, -ballRadius * 10)
           platformPosition = (0, 0)
-          platformHeight = 2
           gameState = GameState { platformPosition, ballPosition, .. }
       in checkFall ballPosition gameState @?= True
   , "Ball does not fall below the platform" ~:
       let ballPosition = (0, 0)
           platformPosition = (0, 0)
-          platformHeight = 2
           gameState = GameState { platformPosition, .. }
       in checkFall ballPosition gameState @?= False
   ]
@@ -173,7 +170,7 @@ testCheckPlatformHitOnHit =
         , result = NotFinished
         , keysPressed = []
         }
-      expected = PlatformHitResult True (0, 0.16666667) --TODO
+      expected = PlatformHitResult True (0, 0.1)
   in TestCase (assertEqual "Ball hits the platform" expected (checkPlatformHit (0, platformHeight / 3) gameState))
 
 testCheckPlatformHitOnMiss :: Test
