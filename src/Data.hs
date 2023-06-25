@@ -37,7 +37,7 @@ platformHitAngleRange :: (Float, Float)
 platformHitAngleRange = (-300, 300)
 
 randRange :: (Float, Float)
-randRange = (100, 100)
+randRange = (-100, 100)
 
 wallsWidth :: Float
 wallsWidth = 5
