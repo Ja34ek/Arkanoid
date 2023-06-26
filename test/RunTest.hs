@@ -37,7 +37,7 @@ testUpdateGameStateNonLevelView =
   TestCase $ do
     let initialState = GameState True Menu (0, 0) (0, 0) 1.0 (0, 0) 1 0 (generateSingleBrickWithLevel 1) 0 NotFinished [NonePressed]
     updatedState <- updateGameState 0.0 initialState
-    assertEqual "Expected updatedState to be equal to initialState" updatedState initialState
+    assertEqual "updatedState should be equal to initialState" updatedState initialState
 
 testUpdateGameStateWin :: Test
 testUpdateGameStateWin =
@@ -45,7 +45,7 @@ testUpdateGameStateWin =
     let initialState = GameState True LevelView (0, 0) (0, 0) 1.0 (0, 0) 1 0 (generateSingleBrickWithLevel 1) 0 Win [NonePressed]
     updatedState <- updateGameState 0.0 initialState
     let expectedState = GameState False WinView (0, 0) (0, 0) 1.0 (0, 0) 1 0 (generateSingleBrickWithLevel 1) 0 Win [NonePressed]
-    assertEqual "Expected updatedState to be equal to expectedState"  updatedState expectedState
+    assertEqual "updatedState should be equal to expectedState"  updatedState expectedState
 
 testUpdateGameStateLose :: Test
 testUpdateGameStateLose =
@@ -53,7 +53,7 @@ testUpdateGameStateLose =
     let initialState = GameState True LevelView (0, 0) (0, 0) 1.0 (0, 0) 1 0 (generateSingleBrickWithLevel 1) 0 Lose [NonePressed]
     updatedState <- updateGameState 0.0 initialState
     let expectedState = GameState False LoseView (0, 0) (0, 0) 1.0 (0, 0) 1 0 (generateSingleBrickWithLevel 1) 0 Lose [NonePressed]
-    assertEqual "Expected updatedState to be equal to expectedState" updatedState expectedState
+    assertEqual "updatedState should be equal to expectedState" updatedState expectedState
 
 runAllTests :: Test
 runAllTests = TestList [testInitState, 
